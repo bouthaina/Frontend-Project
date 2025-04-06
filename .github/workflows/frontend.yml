@@ -71,7 +71,7 @@ jobs:
                     username: user
                     password: ${{ secrets.PASSWORD }}
                     script: |
-                        cd /home/user/devops-session7/front
+                        cd /home/user/devops-proj/front
                         sudo git pull
                         sudo docker compose pull
                         sudo docker compose up -d --force-recreate --remove-orphans || exit 1
