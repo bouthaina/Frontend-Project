@@ -1,23 +1,11 @@
+
 name: frontend-app-stack
 
-# Define services
 services:
-  frontend-app:
-    build:
-      context: .  # Build context is the current directory
-      dockerfile: Dockerfile  # Specify the Dockerfile to use
-      args:
-        VITE_API_URL: http://localhost:3001  # API URL for the frontend app
-    container_name: frontend-app  # Set a custom name for the container
+  front-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: front-app-container_name
     ports:
-      - '3000:80'  # Map port 3000 on the host to port 80 in the container
-    networks:
-      - frontend-app-network  # Connect to the defined network
-
-# Define networks
-networks:
-  frontend-app-network:
-    driver: bridge  # Use bridge networking for container communication
-
-# Manual build command (for reference):
-# docker build -t assidiwassimdev/frontend-app:latest --build-arg API_URL=https://api.lebondeveloppeur.net/api .
+      - "3001:80"

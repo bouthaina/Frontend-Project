@@ -1,0 +1,71 @@
+name: Pipeline frontend
+
+on:
+  push:
+    branches: main
+      
+env:
+      IMAGE_NAME: bouthainabakouch/frontend-app
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      BUILD_NUMBER: ${{ github.run_number }}
+jobs:
+
+  test:
+    runs-on: ubuntu-latest  
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install dependencies
+        run: npm i
+
+      - name: Unit Test 
+        run: |
+          rm -rf test-report
+          mkdir test-report
+          npm run test -- --json --outputFile=test-report/test-report.json
+        continue-on-error: true
+
+      - name: upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Jest-Report
+          path: test-report/test-report.json
+
+      - name: Check test results and fail if tests failed
+        id: check-tests
+        run: |
+            # Simple check using Node.js to see if the tests failed
+            node -e "
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('test-report/test-report.json'));
+            if (report.success === false || report.numFailedTests > 0) {
+              console.error('::error::Tests failed. Stopping workflow.');
+              process.exit(1);
+            }
+            "
+
+      - uses: act10ns/slack@v2
+        if: always()
+        with:
+            status: ${{ job.status }}
+            steps: ${{ toJson(steps) }}    
+            message: |
+                *Test Results* (${{ job.status }})
+                Triggered by: ${{ github.actor }}
+                ${{ steps.check-tests.outcome == 'failure' && '❌ Tests failed!' || '✔️ Tests passed!' }}
+
+                *📦 Repository:* `${{ github.repository }}`
+                *🔀 Branch:* `${{ github.ref }}`
+                *🔢 Commit:* `${{ github.sha }}`
+                *💬 Commit Message:* `${{ github.event.head_commit.message }}`
+                *👤 Author:* `${{ github.actor }}`
+                *🕒 Date:* `${{ github.event.head_commit.timestamp }}`
+                *🔗 Commit Link:* https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+                *🔗 Actions Run:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                
+
+
+
+
+
