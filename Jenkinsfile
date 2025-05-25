@@ -7,7 +7,7 @@ pipeline {
         DOCKERHUB_USERNAME = 'bouthainabakouch'
         FRONTEND_IMAGE_NAME = "${env.DOCKERHUB_USERNAME}/frontendapp-prod"
         SLACK_WEBHOOK_URL = credentials('SLACK_WEBHOOK_URL')
-        VITE_API_URL = credentials('vite-api-url')
+        VITE_API_URL = 'http://localhost:3001'
 
     }
 
